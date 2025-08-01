@@ -1,5 +1,5 @@
 module goDHCP
 
-go 1.23.5
+go 1.24
 
-require github.com/epyon0/goUtils v0.0.0-20250801175516-aea0eb9d0612
+require github.com/epyon0/goUtils v0.0.0-20250801181413-03e5df035fe1
