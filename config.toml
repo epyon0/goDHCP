@@ -16,7 +16,7 @@ ciaddr = "0.0.0.0"
 yiaddr = "0.0.0.0"
 siaddr = "0.0.0.0"
 giaddr = "0.0.0.0"
-chaddr = 0x0
+chaddr = 0xDEADBEEFCAFE
 sname = "test string"
 file = "test string 2"
 
