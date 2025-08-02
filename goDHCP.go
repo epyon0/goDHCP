@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
+	toml "github.com/BurntSushi/toml"
 	utils "github.com/epyon0/goUtils"
+	//toml "github.com/pelletier/go-toml/v2"
 )
 
 /* Example Go Route:
@@ -31,13 +33,22 @@ var debug *bool
 var configFile, start, stop *string
 var sport, cport *uint
 
-type dhcpData struct {
+type serverConfig struct {
+	PoolStart  string `toml:"poolStart"`
+	poolEnd    string `toml:"poolEnd"`
+	serverPort uint16 `toml:"serverPort"`
+	clientPort uint16 `toml:"clientPort"`
 }
 
-var data dhcpData
+type tomlConfig struct {
+	server serverConfig `toml:"server"`
+}
+
+var configData tomlConfig
 
 func PrintData() {
-
+	utils.Debug(fmt.Sprintf("Pool Start: %s", configData.server.PoolStart), *debug)
+	utils.Debug(fmt.Sprintf("Pool End:   %s", configData.server.poolEnd), *debug)
 }
 
 func main() {
@@ -57,7 +68,9 @@ func main() {
 	config, err := os.ReadFile(*configFile)
 	utils.Er(err)
 
-	utils.Debug(fmt.Sprintf("CONFIG: \n%s", config), *debug)
+	//	toml.Unmarshal(config, &configData)
+	toml.Decode(string(config), &configData)
+	fmt.Println(configData)
 
 	/*
 		args, err := utils.GetArgs(0)
