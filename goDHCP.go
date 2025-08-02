@@ -57,7 +57,7 @@ func main() {
 	config, err := os.ReadFile(*configFile)
 	utils.Er(err)
 
-	utils.Debug(fmt.Sprintf("CONFIG:\n%s", config), *debug)
+	utils.Debug(fmt.Sprintf("CONFIG: \n%s", config), *debug)
 
 	/*
 		args, err := utils.GetArgs(0)
