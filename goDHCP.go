@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	toml "github.com/BurntSushi/toml"
+	//toml "github.com/BurntSushi/toml"
 	utils "github.com/epyon0/goUtils"
-	//toml "github.com/pelletier/go-toml/v2"
+	toml "github.com/pelletier/go-toml/v2"
 )
 
 /* Example Go Route:
@@ -34,22 +34,119 @@ var configFile, start, stop *string
 var sport, cport *uint
 
 type serverConfig struct {
-	Poolstart  string
-	Poolend    string
-	Serverport uint16
-	Clientport uint16
+	PoolStart  string
+	PoolEnd    string
+	ServerPort uint16
+	ClientPort uint16
+}
+
+type fieldsConfig struct {
+	OP         byte
+	HTYPE      byte
+	HLEN       byte
+	HOPS       byte
+	XID        byte
+	FLAGS      byte
+	CIADDR     string
+	YIADDR     string
+	SIADDR     string
+	GIADDR     string
+	CHADDR     string
+	CHADDR_RAW [16]byte
+	SNAME      string
+	FILE       string
+}
+
+type optionsConfig struct {
+	PAD    bool
+	END    bool
+	SNM    string
+	TOFF   uint32
+	RTR    []string
+	TSVR   []string
+	NS     []string
+	DNS    []string
+	LSVR   []string
+	CSVR   []string
+	LPRS   []string
+	ISVR   []string
+	RLS    []string
+	HN     string
+	BFS    uint16
+	MDF    string
+	DN     string
+	SS     string
+	RP     string
+	EP     string
+	IPFW   bool
+	NLSR   bool
+	PF     [][2]string
+	MDRS   uint16
+	IPTTL  uint16
+	PMAT   uint16
+	PMPT   []uint16
+	IMTU   uint16
+	ASAL   bool
+	BCADDR string
+	PMD    bool
+	MSUP   bool
+	PRD    bool
+	RSA    string
+	SRT    [][2]string
+	TENCP  bool
+	ACTIM  uint32
+	EENCP  bool
+	TDTTL  uint8
+	TKAI   uint32
+	TKAG   bool
+	NISD   string
+	NISVR  []string
+	NTPS   []string
+	VSI    []byte
+	NBNS   []string
+	NBDDS  []string
+	NBNT   uint8
+	NBS    string
+	XWSFS  []string
+	XWSDM  []string
+	NISPD  string
+	NISPS  []string
+	MIPHA  []string
+	SMTPS  []string
+	POP3S  []string
+	NNTPS  []string
+	DWWWS  []string
+	DFS    []string
+	DIRCS  []string
+	STS    []string
+	STDAS  []string
+	RIPA   string
+	IPALT  uint32
+	OPTOVR uint8
+	TFTPSN string
+	BFNAME string
+	MSGTYP uint8
+	SVRID  string
+	PRL    []byte
+	MSG    string
+	MAXMSG uint16
+	T1     uint32
+	T2     uint32
+	VCID   []byte
+	CIDENT []byte
 }
 
 type tomlConfig struct {
-	//server serverConfig `toml:"server"`
-	poolStart string `toml:"poolStart"`
+	Server  serverConfig  `toml:"server"`
+	Fields  fieldsConfig  `toml:"fields"`
+	Options optionsConfig `toml:"options"`
 }
 
 var configData tomlConfig
 
 func PrintData() {
-	utils.Debug(fmt.Sprintf("Pool Start: %s", configData.poolStart), *debug)
 	utils.Debug(fmt.Sprintf("%+v", configData), *debug)
+
 }
 
 func main() {
@@ -66,24 +163,11 @@ func main() {
 
 	_, err = os.Stat(*configFile)
 	utils.Er(err)
-	//config, err := os.ReadFile(*configFile)
-	//utils.Er(err)
-
-	//	toml.Unmarshal(config, &configData)
-	//toml.Decode(string(config), &configData)
-	mData, err := toml.DecodeFile(*configFile, &configData)
+	config, err := os.ReadFile(*configFile)
 	utils.Er(err)
-	fmt.Println(fmt.Sprintf("%+v", mData.Keys()))
 
-	/*
-		args, err := utils.GetArgs(0)
-		utils.Er(err)
-			_, err = os.Stat(data.configFile)
-			utils.Er(err)
-			file, err := os.ReadFile(data.configFile)
-			utils.Er(err)
-			json.NewDecoder(bytes.NewBuffer(file)).Decode(&data)
-	*/
+	err = toml.Unmarshal(config, &configData)
+	utils.Er(err)
 
 	PrintData()
 }
