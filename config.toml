@@ -1,4 +1,4 @@
-[server]
+#[server]
 poolStart = "192.168.0.100"
 poolEnd = "192.168.0.200"
 serverPort = 67
@@ -20,7 +20,7 @@ chaddr = 0xDEADBEEFCAFE
 sname = "test string"
 file = "test string 2"
 
-[fields.options]
+[options]
 ##############################
 # RFC 1497 Vendor Extensions #
 ##############################

@@ -34,21 +34,22 @@ var configFile, start, stop *string
 var sport, cport *uint
 
 type serverConfig struct {
-	PoolStart  string `toml:"poolStart"`
-	poolEnd    string `toml:"poolEnd"`
-	serverPort uint16 `toml:"serverPort"`
-	clientPort uint16 `toml:"clientPort"`
+	Poolstart  string
+	Poolend    string
+	Serverport uint16
+	Clientport uint16
 }
 
 type tomlConfig struct {
-	server serverConfig `toml:"server"`
+	//server serverConfig `toml:"server"`
+	poolStart string `toml:"poolStart"`
 }
 
 var configData tomlConfig
 
 func PrintData() {
-	utils.Debug(fmt.Sprintf("Pool Start: %s", configData.server.PoolStart), *debug)
-	utils.Debug(fmt.Sprintf("Pool End:   %s", configData.server.poolEnd), *debug)
+	utils.Debug(fmt.Sprintf("Pool Start: %s", configData.poolStart), *debug)
+	utils.Debug(fmt.Sprintf("%+v", configData), *debug)
 }
 
 func main() {
@@ -65,12 +66,14 @@ func main() {
 
 	_, err = os.Stat(*configFile)
 	utils.Er(err)
-	config, err := os.ReadFile(*configFile)
-	utils.Er(err)
+	//config, err := os.ReadFile(*configFile)
+	//utils.Er(err)
 
 	//	toml.Unmarshal(config, &configData)
-	toml.Decode(string(config), &configData)
-	fmt.Println(configData)
+	//toml.Decode(string(config), &configData)
+	mData, err := toml.DecodeFile(*configFile, &configData)
+	utils.Er(err)
+	fmt.Println(fmt.Sprintf("%+v", mData.Keys()))
 
 	/*
 		args, err := utils.GetArgs(0)
