@@ -145,8 +145,121 @@ type tomlConfig struct {
 var configData tomlConfig
 
 func PrintData() {
-	utils.Debug(fmt.Sprintf("%+v", configData), *debug)
+	utils.Debug(fmt.Sprintf("Configuration:\n%+v", configData), *debug)
+	utils.Debug(fmt.Sprintf("Options:\n%s", utils.WalkByteSlice(BuildOptions())), *debug)
+}
 
+func GetIpSlice(ips []string) []byte {
+	var output []byte
+	for i := 0; i < len(ips); i++ {
+		ip, err := utils.Ip2Uint32(ips[i])
+		utils.Er(err)
+		output = append(output, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+	}
+	return output
+}
+
+func BuildOptions() []byte {
+	var output []byte
+
+	ip, err := utils.Ip2Uint32(configData.Options.SNM)
+	utils.Er(err)
+	if ip != 0 {
+		output = append(output, 1, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+	}
+
+	if configData.Options.TOFF != 0 {
+		output = append(output, 2, 4, byte(configData.Options.TOFF>>24), byte(configData.Options.TOFF>>16), byte(configData.Options.TOFF>>8), byte(configData.Options.TOFF))
+	}
+
+	if len(configData.Options.RTR) != 0 {
+		output = append(output, 3, byte(4*len(configData.Options.RTR)))
+		output = append(output, GetIpSlice(configData.Options.RTR)...)
+	}
+
+	if len(configData.Options.TSVR) != 0 {
+		output = append(output, 4, byte(4*len(configData.Options.TSVR)))
+		output = append(output, GetIpSlice(configData.Options.TSVR)...)
+	}
+
+	if len(configData.Options.NS) != 0 {
+		output = append(output, 5, byte(4*len(configData.Options.NS)))
+		output = append(output, GetIpSlice(configData.Options.NS)...)
+	}
+
+	if len(configData.Options.DNS) != 0 {
+		output = append(output, 6, byte(4*len(configData.Options.DNS)))
+		output = append(output, GetIpSlice(configData.Options.DNS)...)
+	}
+
+	if len(configData.Options.LSVR) != 0 {
+		output = append(output, 7, byte(4*len(configData.Options.LSVR)))
+		output = append(output, GetIpSlice(configData.Options.LSVR)...)
+	}
+
+	if len(configData.Options.CSVR) != 0 {
+		output = append(output, 8, byte(4*len(configData.Options.CSVR)))
+		output = append(output, GetIpSlice(configData.Options.CSVR)...)
+	}
+
+	if len(configData.Options.LPRS) != 0 {
+		output = append(output, 9, byte(4*len(configData.Options.LPRS)))
+		output = append(output, GetIpSlice(configData.Options.LPRS)...)
+	}
+
+	if len(configData.Options.ISVR) != 0 {
+		output = append(output, 10, byte(4*len(configData.Options.ISVR)))
+		output = append(output, GetIpSlice(configData.Options.ISVR)...)
+	}
+
+	if len(configData.Options.RLS) != 0 {
+		output = append(output, 11, byte(4*len(configData.Options.RLS)))
+		output = append(output, GetIpSlice(configData.Options.RLS)...)
+	}
+
+	if len(configData.Options.HN) != 0 {
+		output = append(output, 12, byte(len(configData.Options.HN)))
+		output = append(output, []byte(configData.Options.HN)...)
+	}
+
+	if configData.Options.BFS != 0 {
+		output = append(output, 13, 2, byte(configData.Options.BFS>>8), byte(configData.Options.BFS))
+	}
+
+	if len(configData.Options.MDF) != 0 {
+		output = append(output, 14, byte(len(configData.Options.MDF)))
+		output = append(output, []byte(configData.Options.MDF)...)
+	}
+
+	if len(configData.Options.DN) != 0 {
+		output = append(output, 15, byte(len(configData.Options.DN)))
+		output = append(output, []byte(configData.Options.DN)...)
+	}
+
+	ip, err = utils.Ip2Uint32(configData.Options.SS)
+	utils.Er(err)
+	if ip != 0 {
+		output = append(output, 16, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+	}
+
+	if len(configData.Options.RP) != 0 {
+		output = append(output, 17, byte(len(configData.Options.RP)))
+		output = append(output, []byte(configData.Options.RP)...)
+	}
+
+	if len(configData.Options.EP) != 0 {
+		output = append(output, 18, byte(len(configData.Options.EP)))
+		output = append(output, []byte(configData.Options.EP)...)
+	}
+
+	output = append(output, 19, 1) // always create values for bools?
+	if configData.Options.IPFW {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	return output
 }
 
 func main() {

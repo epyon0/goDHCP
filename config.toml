@@ -16,7 +16,7 @@ CIADDR = "0.0.0.0"
 YIADDR = "0.0.0.0"
 SIADDR = "0.0.0.0"
 GIADDR = "0.0.0.0"
-CHADDR = "DEADBEEFCAFE"
+CHADDR = "DEADBEEFCAFE"  #Hex value stored as string ([16]byte)
 SNAME  = "test string"
 FILE   = "test string 2"
 
@@ -24,26 +24,26 @@ FILE   = "test string 2"
 ##############################
 # RFC 1497 Vendor Extensions #
 ##############################
-PAD  = true               #Option 0:   Pad (bool)
-END  = true               #Option 255: End (bool)
-SNM  = "255.255.255.0"    #Option 1:   Subnet Mask (string) (ip)
-TOFF = 0                  #Option 2:   Time Offset (uint32)
-RTR  = [ "192.168.0.1" ]  #Option 3:   Router ([]string) (ip)
-TSVR = [ "192.168.0.1" ]  #Option 4:   Time Server ([]string) (ip)
-NS   = [ "192.168.0.1" ]  #Option 5:   Name Server ([]string) (ip)
-DNS  = [ "192.168.0.1" ]  #Option 6:   Domain Name Server ([]string) (ip)
-LSVR = [ "192.168.0.1" ]  #Option 7:   Log Server ([]string) (ip)
-CSVR = [ "192.168.0.1" ]  #Option 8:   Cookie Server ([]string) (ip)
-LPRS = [ "192.168.0.1" ]  #Option 9:   Line Printer Server ([]string) (ip)
-ISVR = [ "192.168.0.1" ]  #Option 10:  Impress Server ([]string) (ip)
-RLS  = [ "192.168.0.1" ]  #Option 11:  Resource Location Server ([]string) (ip)
-HN   = "hostname"         #Option 12:  Host Name (string)
-BFS  = 33                 #Option 13:  Boot File Size (uint16)
-MDF  = "file path"        #Option 14:  Merit Dump File (string) (NVT)
-DN   = "domain name"      #Option 15:  Domain Name (string)
-SS   = "192.168.0.1"      #Option 16:  Swap Server (string) (ip)
-RP   = "path"             #Option 17:  Root Path (string) (NVT)
-EP   = "path"             #Option 18:  Extensions Path (string)
+PAD  = true                     #Option 0:   Pad (bool), Ignored, server impliments as needed
+END  = true                     #Option 255: End (bool), Ignored, server impliments as needed
+SNM  = "255.255.255.0"          #Option 1:   Subnet Mask (string) (ip)
+TOFF = 0                        #Option 2:   Time Offset (uint32)
+RTR  = [ "192.168.0.1" ]        #Option 3:   Router ([]string) (ip)
+TSVR = [ "192.168.0.1" ]        #Option 4:   Time Server ([]string) (ip)
+NS   = [ "192.168.0.1" ]        #Option 5:   Name Server ([]string) (ip)
+DNS  = [ "8.8.8.8", "1.1.1.1" ] #Option 6:   Domain Name Server ([]string) (ip)
+LSVR = [ "192.168.0.1" ]        #Option 7:   Log Server ([]string) (ip)
+CSVR = [ "192.168.0.1" ]        #Option 8:   Cookie Server ([]string) (ip)
+LPRS = [ "192.168.0.1" ]        #Option 9:   Line Printer Server ([]string) (ip)
+ISVR = [ "192.168.0.1" ]        #Option 10:  Impress Server ([]string) (ip)
+RLS  = [ "192.168.0.1" ]        #Option 11:  Resource Location Server ([]string) (ip)
+HN   = "hostname"               #Option 12:  Host Name (string)
+BFS  = 330                      #Option 13:  Boot File Size (uint16)
+MDF  = "file path"              #Option 14:  Merit Dump File (string) (NVT)
+DN   = "domain name"            #Option 15:  Domain Name (string)
+SS   = "192.168.0.1"            #Option 16:  Swap Server (string) (ip)
+RP   = "path"                   #Option 17:  Root Path (string) (NVT)
+EP   = "path"                   #Option 18:  Extensions Path (string)
 ################################
 # IP Layer Parameters per Host #
 ################################
@@ -111,7 +111,7 @@ TFTPSN = "tftpName"     #Option 66: TFTP Server Name (string)
 BFNAME = "bootFileName" #Option 67: Bootfile Name (string)
 MSGTYP = 2              #Option 53: DHCP Message Type ## Not configurable, automatically choosen by server
 SVRID  = "192.168.0.1"  #Option 54: Server Identifier (string) (ip)
-PRL    = [ 1, 66, 18 ]  #Option 55: Parameter Request List ## Not configurable, used by client
+PRL    = [ 1, 66, 18 ]  #Option 55: Parameter Request List ## Not configurable, used by client ([]byte)
 MSG    = "errMsg"       #Option 56: Message (string) (nvt)
 MAXMSG = 1024           #Option 57: Maximum DHCP Message Size (uint16) (min:576)
 T1     = 43200          #Option 58: Renewal (T1) Time Value (uint32)
