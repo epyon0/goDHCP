@@ -51,13 +51,13 @@ IPFW  = true                                   #Option 19: IP Forwarding Enable/
 NLSR  = true                                   #Option 20: Non-Local Source Routing (bool)
 PF    = [ [ "192.168.0.1", "255.255.255.0" ] ] #Option 21: Policy Filter ([][2]string) (ip, snm)
 MDRS  = 1500                                   #Option 22: Maximum Datagram Reassembly Size (uint16) (min:576)
-IPTTL = 30                                     #Option 23: Default IP Time-to-live (uint16)
-PMAT  = 300                                    #Option 24: Path MTU Aging Timeout Option (uint16)
-PMPT  = [ 80, 77 ]                             #Option 25: Path MTU Plateau Table ([]uint16) (min:68)
+IPTTL = 30                                     #Option 23: Default IP Time-to-live (uint8)
+PMAT  = 300                                    #Option 24: Path MTU Aging Timeout Option (uint32)
+PMPT  = [ 300, 77 ]                            #Option 25: Path MTU Plateau Table ([]uint16) (min:68)
 #####################################
 # IP Layer Parameters per Interface #
 #####################################
-IMTU   = 80                                    #Option 26: Interface MTU (uint16) (multiple) (min:68)
+IMTU   = 1500                                  #Option 26: Interface MTU (uint16) (min:68)
 ASAL   = true                                  #Option 27: All Subnets are Local (bool)
 BCADDR = "192.168.0.255"                       #Option 28: Broadcast Address (string) (ip)
 PMD    = true                                  #Option 29: Perform Mask Discovery (bool)
@@ -75,7 +75,7 @@ EENCP = true #Option 36: Ethernet Encapsulation (bool)
 # TCP Parameters #
 ##################
 TDTTL = 38   #Option 37: TCP Default TTL (uint8)
-TKAI  = 0    #Option 38: TCP Keepalive Interval (uint32)
+TKAI  = 5    #Option 38: TCP Keepalive Interval (uint32)
 TKAG  = true #Option 39: TCP Keepalive Garbage (bool)
 ######################################
 # Application and Service Parameters #

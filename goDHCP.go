@@ -82,8 +82,8 @@ type optionsConfig struct {
 	NLSR   bool
 	PF     [][2]string
 	MDRS   uint16
-	IPTTL  uint16
-	PMAT   uint16
+	IPTTL  uint8
+	PMAT   uint32
 	PMPT   []uint16
 	IMTU   uint16
 	ASAL   bool
@@ -146,7 +146,8 @@ var configData tomlConfig
 
 func PrintData() {
 	utils.Debug(fmt.Sprintf("Configuration:\n%+v", configData), *debug)
-	utils.Debug(fmt.Sprintf("Options:\n%s", utils.WalkByteSlice(BuildOptions())), *debug)
+	opts := BuildOptions()
+	utils.Debug(fmt.Sprintf("Options:\n%s", utils.WalkByteSlice(opts)), *debug)
 }
 
 func GetIpSlice(ips []string) []byte {
@@ -162,10 +163,12 @@ func GetIpSlice(ips []string) []byte {
 func BuildOptions() []byte {
 	var output []byte
 
-	ip, err := utils.Ip2Uint32(configData.Options.SNM)
-	utils.Er(err)
-	if ip != 0 {
-		output = append(output, 1, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+	if len(configData.Options.SNM) != 0 {
+		ip, err := utils.Ip2Uint32(configData.Options.SNM)
+		utils.Er(err)
+		if ip != 0 {
+			output = append(output, 1, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+		}
 	}
 
 	if configData.Options.TOFF != 0 {
@@ -236,10 +239,12 @@ func BuildOptions() []byte {
 		output = append(output, []byte(configData.Options.DN)...)
 	}
 
-	ip, err = utils.Ip2Uint32(configData.Options.SS)
-	utils.Er(err)
-	if ip != 0 {
-		output = append(output, 16, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+	if len(configData.Options.SS) != 0 {
+		ip, err := utils.Ip2Uint32(configData.Options.SS)
+		utils.Er(err)
+		if ip != 0 {
+			output = append(output, 16, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+		}
 	}
 
 	if len(configData.Options.RP) != 0 {
@@ -252,11 +257,167 @@ func BuildOptions() []byte {
 		output = append(output, []byte(configData.Options.EP)...)
 	}
 
-	output = append(output, 19, 1) // always create values for bools?
+	output = append(output, 19, 1)
 	if configData.Options.IPFW {
 		output = append(output, 1)
 	} else {
 		output = append(output, 0)
+	}
+
+	output = append(output, 20, 1)
+	if configData.Options.NLSR {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	if len(configData.Options.PF) != 0 {
+		output = append(output, 21, byte(8*len(configData.Options.PF)))
+		for i := 0; i < len(configData.Options.PF); i++ {
+			ip, err := utils.Ip2Uint32(configData.Options.PF[i][0])
+			utils.Er(err)
+			nm, err := utils.Ip2Uint32(configData.Options.PF[i][1])
+			utils.Er(err)
+			output = append(output, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+			output = append(output, byte(nm>>24), byte(nm>>16), byte(nm>>8), byte(nm))
+		}
+	}
+
+	if configData.Options.MDRS != 0 {
+		output = append(output, 22, 2, byte(configData.Options.MDRS>>8), byte(configData.Options.MDRS))
+	}
+
+	if configData.Options.IPTTL != 0 {
+		output = append(output, 23, 1, configData.Options.IPTTL)
+	}
+
+	if configData.Options.PMAT != 0 {
+		output = append(output, 24, 4, byte(configData.Options.PMAT>>24), byte(configData.Options.PMAT>>16), byte(configData.Options.PMAT>>8), byte(configData.Options.PMAT))
+	}
+
+	if len(configData.Options.PMPT) != 0 {
+		output = append(output, 25, byte(2*len(configData.Options.PMPT)))
+		for i := 0; i < len(configData.Options.PMPT); i++ {
+			tmp16 := configData.Options.PMPT[i]
+			output = append(output, byte(tmp16>>8), byte(tmp16))
+		}
+	}
+
+	if configData.Options.IMTU != 0 {
+		output = append(output, 26, 2, byte(configData.Options.IMTU>>8), byte(configData.Options.IMTU))
+	}
+
+	output = append(output, 27, 1)
+	if configData.Options.ASAL {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	if len(configData.Options.BCADDR) != 0 {
+		ip, err := utils.Ip2Uint32(configData.Options.BCADDR)
+		utils.Er(err)
+		if ip != 0 {
+			output = append(output, 28, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+		}
+	}
+
+	output = append(output, 29, 1)
+	if configData.Options.PMD {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	output = append(output, 30, 1)
+	if configData.Options.MSUP {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	output = append(output, 31, 1)
+	if configData.Options.PRD {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	if len(configData.Options.RSA) != 0 {
+		ip, err := utils.Ip2Uint32(configData.Options.RSA)
+		utils.Er(err)
+		if ip != 0 {
+			output = append(output, 32, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+		}
+	}
+
+	if len(configData.Options.SRT) != 0 {
+		output = append(output, 33, byte(8*len(configData.Options.SRT)))
+		for i := 0; i < len(configData.Options.SRT); i++ {
+			ip, err := utils.Ip2Uint32(configData.Options.SRT[i][0])
+			utils.Er(err)
+			nm, err := utils.Ip2Uint32(configData.Options.SRT[i][1])
+			utils.Er(err)
+			output = append(output, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+			output = append(output, byte(nm>>24), byte(nm>>16), byte(nm>>8), byte(nm))
+		}
+	}
+
+	output = append(output, 34, 1)
+	if configData.Options.TENCP {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	if configData.Options.ACTIM != 0 {
+		tmp32 := configData.Options.ACTIM
+		output = append(output, 35, 4, byte(tmp32>>24), byte(tmp32>>16), byte(tmp32>>8), byte(tmp32))
+	}
+
+	output = append(output, 36, 1)
+	if configData.Options.EENCP {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	if configData.Options.TDTTL != 0 {
+		output = append(output, 37, 1, configData.Options.TDTTL)
+	}
+
+	if configData.Options.TKAI != 0 {
+		tmp32 := configData.Options.TKAI
+		output = append(output, 38, 4, byte(tmp32>>24), byte(tmp32>>16), byte(tmp32>>8), byte(tmp32))
+	}
+
+	output = append(output, 39, 1)
+	if configData.Options.TKAG {
+		output = append(output, 1)
+	} else {
+		output = append(output, 0)
+	}
+
+	if len(configData.Options.NISD) != 0 {
+		output = append(output, 40, byte(len(configData.Options.NISD)))
+		output = append(output, []byte(configData.Options.NISD)...)
+	}
+
+	if len(configData.Options.NISVR) != 0 {
+		output = append(output, 41, byte(4*len(configData.Options.NISVR)))
+		output = append(output, GetIpSlice(configData.Options.NISVR)...)
+	}
+
+	if len(configData.Options.NTPS) != 0 {
+		output = append(output, 42, byte(4*len(configData.Options.NTPS)))
+		output = append(output, GetIpSlice(configData.Options.NTPS)...)
+	}
+
+	if len(configData.Options.VSI) != 0 {
+		output = append(output, 43, byte(len(configData.Options.VSI)))
+		for i := 0; i < len(configData.Options.VSI); i++ {
+			output = append(output, configData.Options.VSI[i])
+		}
 	}
 
 	return output
