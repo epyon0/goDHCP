@@ -1,0 +1,12 @@
+# github.com/BurntSushi/toml v1.5.0
+## explicit; go 1.18
+# github.com/epyon0/goUtils v0.0.0-20250801181413-03e5df035fe1
+## explicit; go 1.18
+github.com/epyon0/goUtils
+# github.com/pelletier/go-toml/v2 v2.2.4
+## explicit; go 1.21.0
+github.com/pelletier/go-toml/v2
+github.com/pelletier/go-toml/v2/internal/characters
+github.com/pelletier/go-toml/v2/internal/danger
+github.com/pelletier/go-toml/v2/internal/tracker
+github.com/pelletier/go-toml/v2/unstable

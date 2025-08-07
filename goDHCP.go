@@ -7,10 +7,14 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"slices"
+	"time"
 
 	utils "github.com/epyon0/goUtils"
 	toml "github.com/pelletier/go-toml/v2"
 )
+
+// Reference: https://www.linode.com/docs/guides/developing-udp-and-tcp-clients-and-servers-in-go/
 
 /* Example Go Route:
 
@@ -31,6 +35,17 @@ wg.Wait()
 var debug *bool
 var configFile, start, stop *string
 var sport, cport *uint
+
+type poolIP struct {
+	ip        uint32
+	available bool
+	xid       uint32
+	start     time.Time
+	end       time.Time
+	htype     byte
+	hlen      byte
+	chaddr    []byte
+}
 
 type serverConfig struct {
 	PoolStart   string
@@ -143,6 +158,9 @@ type tomlConfig struct {
 }
 
 var configData tomlConfig
+var clients []poolIP
+
+var inProgress []uint32
 
 func PrintData() {
 	utils.Debug(fmt.Sprintf("Configuration:\n%+v", configData), *debug)
@@ -602,6 +620,21 @@ func main() {
 
 	buf := make([]byte, 1500)
 
+	startIP, err := utils.Ip2Uint32(configData.Server.PoolStart)
+	utils.Er(err)
+	stopIP, err := utils.Ip2Uint32(configData.Server.PoolEnd)
+	utils.Er(err)
+	if startIP > stopIP {
+		utils.Er(fmt.Errorf("pool start IP cannot be larger than end IP"))
+	}
+
+	for i := startIP; i <= stopIP; i++ {
+		var tmpClient poolIP
+		tmpClient.ip = i
+		tmpClient.available = true
+		clients = append(clients, tmpClient)
+	}
+
 	for {
 		//n, addr, err := ....
 		n, _, err := conn.ReadFromUDP(buf)
@@ -617,6 +650,20 @@ func main() {
 		if op == 2 {
 			utils.Debug("BOOTREPLY", *debug)
 		}
+
+		htype := buf[1]
+		hlen := buf[2]
+		xid := (uint32(buf[4]) << 24) + (uint32(buf[5]) << 16) + (uint32(buf[6]) << 8) + uint32(buf[7])
+		var chaddr []byte
+		for i := 0; i < 16; i++ {
+			chaddr = append(chaddr, buf[28+i])
+		}
+		var reqIP uint32
+		var reqList []byte
+		var hostname string
+
+		utils.Debug(fmt.Sprintf("DHCP MESSAGE:\nXID: %0X\nHW ADDR: %s", xid, utils.WalkByteSlice(chaddr[:hlen])), *debug)
+
 		msgtyp := 0
 		for i := 0; i < n; i++ {
 			if (i+3 < n) && (binary.LittleEndian.Uint32(buf[i:i+4]) == configData.Server.MagicCookie || binary.BigEndian.Uint32(buf[i:i+4]) == configData.Server.MagicCookie) {
@@ -630,9 +677,23 @@ func main() {
 					if opt == 255 {
 						break
 					}
+					if opt == 0 {
+						continue
+					}
 					if opt == 53 {
 						msgtyp = int(buf[j+1+length])
 
+					}
+					if opt = 50 {
+						reqIP = (uint32(buf[j+2])<<24) + (uint32(buf[j+3])<<16) + (uint32(buf[j+4])<<8) + uint32(buf[j+5])
+					}
+					if opt = 12 {
+						hostname = string(buf[j+2:j+2+length])
+					}
+					if opt = 55 {
+						for k := j+2; k < j+2+length; k++ {
+							reqList = append(reqList, buf[k])
+						}
 					}
 					j = j + 1 + length
 				}
@@ -643,14 +704,49 @@ func main() {
 		switch msgtyp {
 		case 1:
 			utils.Debug("DISCOVER", *debug)
+			// if op code good, send OFFER, create element in inProgress
+			if op == 1 {
+				if !slices.Contains(inProgress, xid) {
+					inProgress = append(inProgress, xid)
+					utils.Debug(fmt.Sprintf("Sending OFFER for [%0X]:%s", xid, utils.WalkByteSlice(chaddr[:hlen])), *debug)
+
+					// Check if request ip is available, send OFFER
+					outerLoop:
+					for i := 0; i < len(clients); i++ { // make clients a hash map to speed things up a bit
+						if clients[i].ip == reqIP && clients[i].avialable {
+							// Send OFFER with requested IP
+							break
+						} else {
+							// Send OFFER with first avialable IP
+							for j := 0; j < len(clients); j++ {
+								if clients[j].available {
+									// Send OFFER with this IP
+									break outerLoop
+								}
+							}
+						}
+					}
+				}
+			}
 		case 2:
 			utils.Debug("OFFER", *debug)
+			continue
 		case 3:
 			utils.Debug("REQUEST", *debug)
+			// if OFFER was given (entry exists in inProgress)
+			// if requested ip avaialbe, send ACK
+			// else send OFFER again
+
+			if op == 1 {
+				if slices.Contains(inProgress, xid) {
+					// Send ACK
+				}
+			}
 		case 4:
 			utils.Debug("DECLINE", *debug)
 		case 5:
 			utils.Debug("ACK", *debug)
+			continue
 		case 6:
 			utils.Debug("NAK", *debug)
 		case 7:
