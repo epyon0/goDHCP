@@ -166,9 +166,7 @@ func BuildOptions() []byte {
 	if len(configData.Options.SNM) != 0 {
 		ip, err := utils.Ip2Uint32(configData.Options.SNM)
 		utils.Er(err)
-		if ip != 0 {
-			output = append(output, 1, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
-		}
+		output = append(output, 1, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
 	}
 
 	if configData.Options.TOFF != 0 {
@@ -242,9 +240,7 @@ func BuildOptions() []byte {
 	if len(configData.Options.SS) != 0 {
 		ip, err := utils.Ip2Uint32(configData.Options.SS)
 		utils.Er(err)
-		if ip != 0 {
-			output = append(output, 16, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
-		}
+		output = append(output, 16, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
 	}
 
 	if len(configData.Options.RP) != 0 {
@@ -317,9 +313,7 @@ func BuildOptions() []byte {
 	if len(configData.Options.BCADDR) != 0 {
 		ip, err := utils.Ip2Uint32(configData.Options.BCADDR)
 		utils.Er(err)
-		if ip != 0 {
-			output = append(output, 28, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
-		}
+		output = append(output, 28, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
 	}
 
 	output = append(output, 29, 1)
@@ -346,9 +340,7 @@ func BuildOptions() []byte {
 	if len(configData.Options.RSA) != 0 {
 		ip, err := utils.Ip2Uint32(configData.Options.RSA)
 		utils.Er(err)
-		if ip != 0 {
-			output = append(output, 32, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
-		}
+		output = append(output, 32, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
 	}
 
 	if len(configData.Options.SRT) != 0 {
@@ -417,6 +409,162 @@ func BuildOptions() []byte {
 		output = append(output, 43, byte(len(configData.Options.VSI)))
 		for i := 0; i < len(configData.Options.VSI); i++ {
 			output = append(output, configData.Options.VSI[i])
+		}
+	}
+
+	if len(configData.Options.NBNS) != 0 {
+		output = append(output, 44, byte(4*len(configData.Options.NBNS)))
+		output = append(output, GetIpSlice(configData.Options.NBNS)...)
+	}
+
+	if len(configData.Options.NBDDS) != 0 {
+		output = append(output, 45, byte(4*len(configData.Options.NBDDS)))
+		output = append(output, GetIpSlice(configData.Options.NBDDS)...)
+	}
+
+	if configData.Options.NBNT != 0 {
+		output = append(output, 46, configData.Options.NBNT)
+	}
+
+	if len(configData.Options.NBS) != 1 {
+		output = append(output, 47, byte(len(configData.Options.NBS)))
+		output = append(output, []byte(configData.Options.NBS)...)
+	}
+
+	if len(configData.Options.XWSFS) != 0 {
+		output = append(output, 48, byte(4*len(configData.Options.XWSFS)))
+		output = append(output, GetIpSlice(configData.Options.XWSFS)...)
+	}
+
+	if len(configData.Options.XWSDM) != 0 {
+		output = append(output, 49, byte(4*len(configData.Options.XWSDM)))
+		output = append(output, GetIpSlice(configData.Options.XWSDM)...)
+	}
+
+	if len(configData.Options.NISPD) != 0 {
+		output = append(output, 64, byte(len(configData.Options.NISPD)))
+		output = append(output, []byte(configData.Options.NISPD)...)
+	}
+
+	if len(configData.Options.NISPS) != 0 {
+		output = append(output, 65, byte(4*len(configData.Options.NISPS)))
+		output = append(output, GetIpSlice(configData.Options.NISPS)...)
+	}
+
+	if len(configData.Options.MIPHA) != 0 {
+		output = append(output, 68, byte(4*len(configData.Options.MIPHA)))
+		output = append(output, GetIpSlice(configData.Options.MIPHA)...)
+	}
+
+	if len(configData.Options.SMTPS) != 0 {
+		output = append(output, 69, byte(4*len(configData.Options.SMTPS)))
+		output = append(output, GetIpSlice(configData.Options.SMTPS)...)
+	}
+
+	if len(configData.Options.POP3S) != 0 {
+		output = append(output, 70, byte(4*len(configData.Options.POP3S)))
+		output = append(output, GetIpSlice(configData.Options.POP3S)...)
+	}
+
+	if len(configData.Options.NNTPS) != 0 {
+		output = append(output, 71, byte(4*len(configData.Options.NNTPS)))
+		output = append(output, GetIpSlice(configData.Options.NNTPS)...)
+	}
+
+	if len(configData.Options.DWWWS) != 0 {
+		output = append(output, 72, byte(4*len(configData.Options.DWWWS)))
+		output = append(output, GetIpSlice(configData.Options.DWWWS)...)
+	}
+
+	if len(configData.Options.DFS) != 0 {
+		output = append(output, 73, byte(4*len(configData.Options.DFS)))
+		output = append(output, GetIpSlice(configData.Options.DFS)...)
+	}
+
+	if len(configData.Options.DIRCS) != 0 {
+		output = append(output, 74, byte(4*len(configData.Options.DIRCS)))
+		output = append(output, GetIpSlice(configData.Options.DIRCS)...)
+	}
+
+	if len(configData.Options.STS) != 0 {
+		output = append(output, 75, byte(4*len(configData.Options.STS)))
+		output = append(output, GetIpSlice(configData.Options.STS)...)
+	}
+
+	if len(configData.Options.STDAS) != 0 {
+		output = append(output, 76, byte(4*len(configData.Options.STDAS)))
+		output = append(output, GetIpSlice(configData.Options.STDAS)...)
+	}
+
+	if len(configData.Options.RIPA) != 0 {
+		ip, err := utils.Ip2Uint32(configData.Options.RIPA)
+		utils.Er(err)
+		output = append(output, 50, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+	}
+
+	if configData.Options.IPALT != 0 {
+		tmp32 := configData.Options.IPALT
+		output = append(output, 51, 4, byte(tmp32>>24), byte(tmp32>>16), byte(tmp32>>8), byte(tmp32))
+	}
+
+	if configData.Options.OPTOVR != 0 {
+		output = append(output, 52, 1, configData.Options.OPTOVR)
+	}
+
+	if len(configData.Options.TFTPSN) != 0 {
+		output = append(output, 66, byte(len(configData.Options.TFTPSN)))
+		output = append(output, []byte(configData.Options.TFTPSN)...)
+	}
+
+	if len(configData.Options.BFNAME) != 0 {
+		output = append(output, 67, byte(len(configData.Options.BFNAME)))
+		output = append(output, []byte(configData.Options.BFNAME)...)
+	}
+
+	if len(configData.Options.SVRID) != 0 {
+		ip, err := utils.Ip2Uint32(configData.Options.SVRID)
+		utils.Er(err)
+		output = append(output, 54, 4, byte(ip>>24), byte(ip>>16), byte(ip>>8), byte(ip))
+	}
+
+	if len(configData.Options.PRL) != 0 {
+		output = append(output, 55, byte(len(configData.Options.PRL)))
+		for i := 0; i < len(configData.Options.PRL); i++ {
+			output = append(output, configData.Options.PRL[i])
+		}
+	}
+
+	if len(configData.Options.MSG) != 0 {
+		output = append(output, 56, byte(len(configData.Options.MSG)))
+		output = append(output, []byte(configData.Options.MSG)...)
+	}
+
+	if configData.Options.MAXMSG != 0 {
+		tmp16 := configData.Options.MAXMSG
+		output = append(output, 57, 2, byte(tmp16>>8), byte(tmp16))
+	}
+
+	if configData.Options.T1 != 0 {
+		t1 := configData.Options.T1
+		output = append(output, 58, 4, byte(t1>>24), byte(t1>>16), byte(t1>>8), byte(t1))
+	}
+
+	if configData.Options.T2 != 0 {
+		t2 := configData.Options.T2
+		output = append(output, 59, 4, byte(t2>>24), byte(t2>>16), byte(t2>>8), byte(t2))
+	}
+
+	if len(configData.Options.VCID) != 0 {
+		output = append(output, 60, byte(len(configData.Options.VCID)))
+		for i := 0; i < len(configData.Options.VCID); i++ {
+			output = append(output, configData.Options.VCID[i])
+		}
+	}
+
+	if len(configData.Options.CIDENT) != 0 {
+		output = append(output, 61, byte(len(configData.Options.CIDENT)))
+		for i := 0; i < len(configData.Options.CIDENT); i++ {
+			output = append(output, configData.Options.CIDENT[i])
 		}
 	}
 
