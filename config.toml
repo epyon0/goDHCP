@@ -1,8 +1,9 @@
 [server]
-PoolStart  = "192.168.0.100"
-PoolEnd    = "192.168.0.200"
-ServerPort = 67
-ClientPort = 68
+PoolStart   = "192.168.0.100"
+PoolEnd     = "192.168.0.200"
+ServerPort  = 67
+ClientPort  = 68
+MagicCookie = 0x63825363
 
 [fields]
 OP     = 1

@@ -1,5 +1,3 @@
-github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
-github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/epyon0/goUtils v0.0.0-20250801181413-03e5df035fe1 h1:7LYmt6hZjF82/KekkkuaXi3Xi11ualyz+4Pqsb2OijU=
 github.com/epyon0/goUtils v0.0.0-20250801181413-03e5df035fe1/go.mod h1:RCsjQghzHAszArfLZAVSFz5ODUIth89v81aIGzEM1sQ=
 github.com/pelletier/go-toml/v2 v2.2.4 h1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=

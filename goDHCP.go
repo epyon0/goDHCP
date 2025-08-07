@@ -1,12 +1,13 @@
 package main
 
 import (
+	"encoding/binary"
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 
-	//toml "github.com/BurntSushi/toml"
 	utils "github.com/epyon0/goUtils"
 	toml "github.com/pelletier/go-toml/v2"
 )
@@ -15,18 +16,16 @@ import (
 
 func testFunc(j string, wg *sync.WaitGroup) {
 	fmt.Printf("TEST:%s\r\n", j)
-defer wg.Done()
+	defer wg.Done()
 }
 
-	var wg sync.WaitGroup
-	wg.Add(len(ips))
-	for i := 0; i < len(n); i++ {
+var wg sync.WaitGroup
+wg.Add(len(ips))
+for i := 0; i < len(n); i++ {
+	go testFunc(ip, &wg)
+}
+wg.Wait()
 
-
-		go testFunc(ip, &wg)
-
-	}
-	wg.Wait()
 */
 
 var debug *bool
@@ -34,10 +33,11 @@ var configFile, start, stop *string
 var sport, cport *uint
 
 type serverConfig struct {
-	PoolStart  string
-	PoolEnd    string
-	ServerPort uint16
-	ClientPort uint16
+	PoolStart   string
+	PoolEnd     string
+	ServerPort  uint16
+	ClientPort  uint16
+	MagicCookie uint32
 }
 
 type fieldsConfig struct {
@@ -592,4 +592,71 @@ func main() {
 	utils.Er(err)
 
 	PrintData()
+
+	s, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("0.0.0.0:%d", configData.Server.ServerPort))
+	utils.Er(err)
+
+	conn, err := net.ListenUDP("udp4", s)
+	utils.Er(err)
+	defer conn.Close()
+
+	buf := make([]byte, 1500)
+
+	for {
+		//n, addr, err := ....
+		n, _, err := conn.ReadFromUDP(buf)
+		if err != nil {
+			utils.Debug(fmt.Sprintf("Error: %v", err), *debug)
+		}
+		utils.Debug(fmt.Sprintf("UDP Received:\nString: [\n%s\n]\nBinary: [\n%s\n]", string(buf[:n]), utils.WalkByteSlice(buf[:n])), *debug)
+
+		op := buf[0]
+		if op == 1 {
+			utils.Debug("BOOTREQUEST", *debug)
+		}
+		if op == 2 {
+			utils.Debug("BOOTREPLY", *debug)
+		}
+		msgtyp := 0
+		for i := 0; i < n; i++ {
+			if (i+3 < n) && (binary.LittleEndian.Uint32(buf[i:i+4]) == configData.Server.MagicCookie || binary.BigEndian.Uint32(buf[i:i+4]) == configData.Server.MagicCookie) {
+				for j := i + 4; j < n; j++ {
+					opt := buf[j]
+					length := 0
+					if j+1 < n {
+						length = int(buf[j+1])
+					}
+					utils.Debug(fmt.Sprintf("Option %d Received from Client, Length %d", opt, length), *debug)
+					if opt == 255 {
+						break
+					}
+					if opt == 53 {
+						msgtyp = int(buf[j+1+length])
+
+					}
+					j = j + 1 + length
+				}
+				break
+			}
+		}
+
+		switch msgtyp {
+		case 1:
+			utils.Debug("DISCOVER", *debug)
+		case 2:
+			utils.Debug("OFFER", *debug)
+		case 3:
+			utils.Debug("REQUEST", *debug)
+		case 4:
+			utils.Debug("DECLINE", *debug)
+		case 5:
+			utils.Debug("ACK", *debug)
+		case 6:
+			utils.Debug("NAK", *debug)
+		case 7:
+			utils.Debug("RELEASE", *debug)
+		case 8:
+			utils.Debug("INFORM", *debug)
+		}
+	}
 }
